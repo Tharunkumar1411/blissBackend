@@ -2,10 +2,10 @@
   "name": "bliss-backend",
   "version": "1.0.0",
   "description": "Basic Node.js server application",
-  "main": "src/server.js",
+  "main": "app.js",
   "scripts": {
-    "start": "nodemon src/server.js",
-    "dev": "nodemon src/server.js"
+    "start": "nodemon app.js",
+    "dev": "nodemon app.js"
   },
   "keywords": [],
   "author": "",
