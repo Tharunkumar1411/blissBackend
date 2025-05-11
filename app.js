@@ -23,6 +23,6 @@ app.get('/', (req, res) => {
 app.use(router);
 
 // Start server
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-}); 
+app.listen(port, '0.0.0.0', () => {
+  console.log('Server running on port 3000');
+});

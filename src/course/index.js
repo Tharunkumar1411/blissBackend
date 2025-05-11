@@ -238,3 +238,49 @@ exports.getCourseAssignments = async(req, res) => {
       return res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+exports.deleteAssignment = async(req, res) => {
+  try {
+      const { assignmentId } = req.query;
+      console.log("ass id", assignmentId)
+      if (!assignmentId) {
+          return res.status(400).json({
+              error: 'Assignment ID is required'
+          });
+      }
+      
+      const getQuery = 'SELECT course_id FROM assignments WHERE id = $1';
+      const getResult = await client.query(getQuery, [assignmentId]);
+      
+      if (getResult.rows.length === 0) {
+          return res.status(404).json({ error: 'Assignment not found' });
+      }
+      
+      const courseId = getResult.rows[0].course_id;
+      
+      // Delete the assignment
+      const deleteQuery = 'DELETE FROM assignments WHERE id = $1 RETURNING *';
+      const deleteResult = await client.query(deleteQuery, [assignmentId]);
+      
+      // Update the total assignments count in the courses table
+      const countQuery = 'SELECT COUNT(*) FROM assignments WHERE course_id = $1';
+      const countResult = await client.query(countQuery, [courseId]);
+      
+      const updateCourseQuery = `
+          UPDATE courses 
+          SET total_assignments = $1
+          WHERE id = $2
+      `;
+      
+      await client.query(updateCourseQuery, [parseInt(countResult.rows[0].count), courseId]);
+      
+      return res.status(200).json({
+          message: 'Assignment deleted successfully',
+          assignment: deleteResult.rows[0]
+      });
+      
+  } catch (error) {
+      console.error("Error in deleteAssignment:", error);
+      return res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
